@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Yılbaşı Ağacı</title>
+<style>
+  :root{
+    --bg:#0b1220;
+    --tree:#0b6b2f;
+    --trunk:#6b3b1d;
+    --star:#ffd54a;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,var(--bg) 0%, #071021 70%);color:#fff}
+  .stage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px;
+    box-sizing:border-box;
+  }
+  .snow{
+    position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;
+    overflow:hidden;
+  }
+  .flake{
+    position:absolute;
+    top:-10px;
+    width:6px;height:6px;border-radius:50%;
+    background:rgba(255,255,255,0.9);opacity:0.9;
+    filter:blur(0.3px);
+    animation:fall linear infinite;
+  }
+  @keyframes fall{
+    to{transform:translateY(110vh) translateX(30px); opacity:0.2}
+  }
+  .tree-wrap{width:320px; text-align:center; position:relative}
+  .star{
+    position:absolute; left:50%; transform:translateX(-50%); top:-46px;
+    width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;
+    border-bottom:28px solid var(--star);
+    filter:drop-shadow(0 4px 8px rgba(255,200,60,0.18));
+  }
+  .star:after{
+    content:""; position:absolute; left:-14px; top:10px;
+    width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;
+    border-top:28px solid var(--star);
+  }
+  .layer{
+    margin:0 auto;
+    width:0;
+    border-left:80px solid transparent;
+    border-right:80px solid transparent;
+    border-bottom:120px solid var(--tree);
+    position:relative;
+    transition:transform .3s ease;
+  }
+  .layer.mid{border-left:110px solid transparent;border-right:110px solid transparent;border-bottom-width:150px;margin-top:-40px}
+  .layer.bot{border-left:150px solid transparent;border-right:150px solid transparent;border-bottom-width:190px;margin-top:-50px}
+  .trunk{
+    margin: -10px auto 0; width:70px; height:60px; background:var(--trunk); border-radius:6px;
+    box-shadow: inset -6px 0 8px rgba(0,0,0,0.25);
+  }
+  .ornament, .light{
+    position:absolute; width:14px; height:14px; border-radius:50%;
+    box-shadow:0 2px 6px rgba(0,0,0,0.35);
+    transform:translate(-50%,-50%);
+  }
+  .ornament{background:linear-gradient(180deg,#ff7b7b,#c70000)}
+  .ornament.blue{background:linear-gradient(180deg,#7bb7ff,#005fc7)}
+  .ornament.green{background:linear-gradient(180deg,#9eff9e,#019121)}
+  .ornament.gold{background:linear-gradient(180deg,#ffd87a,#d89c00)}
+  .light{width:10px;height:10px; box-shadow:0 0 8px rgba(255,255,160,0.2)}
+  .light.on{box-shadow:0 0 14px rgba(255,255,200,0.9), 0 0 26px rgba(255,200,60,0.25)}
+  .light.red{background:#ff4b4b}
+  .light.yellow{background:#ffe86f}
+  .light.cyan{background:#6fffe8}
+  .caption{margin-top:20px;color:#cfe6ff;font-size:14px;opacity:0.9}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="tree-wrap" id="tree">
+    <div class="star"></div>
+    <div class="layer top" style="z-index:3"></div>
+    <div class="layer mid" style="z-index:2"></div>
+    <div class="layer bot" style="z-index:1"></div>
+    <div class="trunk"></div>
+    <div class="caption">HTML + CSS yılbaşı ağacı — ışıklar otomatik yanıp söner</div>
+  </div>
+</div>
+<div class="snow" id="snow"></div>
+<script>
+  const decorations = [
+    {type:'ornament',cls:'', x:50, y:20},
+    {type:'ornament',cls:'blue', x:37, y:36},
+    {type:'ornament',cls:'green', x:62, y:44},
+    {type:'ornament',cls:'gold', x:45, y:62},
+    {type:'ornament',cls:'blue', x:30, y:70},
+    {type:'ornament',cls:'', x:68, y:75},
+    {type:'light',cls:'red', x:50, y:32},
+    {type:'light',cls:'yellow', x:42, y:48},
+    {type:'light',cls:'cyan', x:58, y:54},
+    {type:'light',cls:'red', x:33, y:56},
+    {type:'light',cls:'yellow', x:70, y:48},
+    {type:'light',cls:'cyan', x:55, y:70},
+  ];
+  const tree = document.getElementById('tree');
+  decorations.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = d.type + (d.cls ? ' ' + d.cls : '');
+    const size = (d.type === 'ornament') ? (12 + Math.round(Math.random()*8)) : (8 + Math.round(Math.random()*6));
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    el.style.left = d.x + '%';
+    el.style.top = d.y + '%';
+    el.style.zIndex = 100 + i;
+    tree.appendChild(el);
+  });
+  const lights = Array.from(document.querySelectorAll('.light'));
+  function blink(){
+    lights.forEach(l => l.classList.remove('on'));
+    const n = 2 + Math.floor(Math.random() * Math.min(5, lights.length));
+    for(let i=0;i<n;i++){
+      const idx = Math.floor(Math.random() * lights.length);
+      lights[idx].classList.add('on');
+    }
+    setTimeout(blink, 400 + Math.random() * 900);
+  }
+  blink();
+  const snow = document.getElementById('snow');
+  function makeFlake(){
+    const f = document.createElement('div');
+    f.className = 'flake';
+    const left = Math.random() * 100;
+    const size = 2 + Math.random()*8;
+    f.style.left = left + 'vw';
+    f.style.width = size + 'px';
+    f.style.height = size + 'px';
+    f.style.opacity = 0.5 + Math.random() * 0.8;
+    f.style.animationDuration = (6 + Math.random()*6) + 's';
+    snow.appendChild(f);
+    setTimeout(()=> f.remove(), 14000);
+  }
+  setInterval(makeFlake, 200);
+  for(let i=0;i<12;i++) makeFlake();
+</script>
+</body>
+</html>
